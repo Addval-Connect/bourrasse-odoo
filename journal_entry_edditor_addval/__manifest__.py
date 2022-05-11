@@ -16,12 +16,7 @@
     "version": "0.1",
     # any module necessary for this one to work correctly
     "depends": [
-        "contacts",
-        "base_address_city",
-        "base_vat",
-        "l10n_latam_base",
-        "l10n_latam_invoice_document",
-        "uom",
+        "account",
     ],
     # always loaded
     "data": [
