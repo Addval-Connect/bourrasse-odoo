@@ -1,4 +1,4 @@
-from odoo import models
+from odoo import models, fields
 
 class AccountInvoiceReference(models.Model):
     _inherit = 'l10n_cl.account.invoice.reference'
@@ -64,3 +64,5 @@ class AccountInvoiceReference(models.Model):
         ('CHQ', '(CHQ) Cheque'),
         ('PAG', '(PAG) Pagaré'),
     ]
+
+    l10n_cl_reference_doc_type_selection = fields.Selection(reference_documents, string='SII Doc Type Selector', required=True)
