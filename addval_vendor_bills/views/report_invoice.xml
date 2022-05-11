@@ -203,7 +203,7 @@
 
     </template>
 
-    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
+    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation>
     <template id="report_invoice" inherit_id="account.report_invoice">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
             <t t-if="o._get_name_invoice_report() == 'addval_vendor_bills.report_invoice_document'"
@@ -217,5 +217,6 @@
                 t-call="addval_vendor_bills.report_invoice_document" t-lang="lang"/>
         </xpath>
     </template>
+    -->
 
 </odoo>
