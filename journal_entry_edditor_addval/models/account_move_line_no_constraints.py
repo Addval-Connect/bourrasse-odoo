@@ -35,4 +35,4 @@ class ResCurrency(models.Model):
     _inherit = 'res.currency'
 
     def _has_accounting_entries(self):
-        return false
+        return False
