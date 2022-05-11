@@ -7,7 +7,7 @@
     'author': 'Odoo PS',
     'category': 'Customization',
     'description': "This module will change the vendor bill report layout.",
-    'depends': ['account', 'l10n_cl'],
+    'depends': ['account', 'l10n_cl', 'l10n_cl_edi'],
     'version': '1.0',
     'auto_install': False,
     'license': 'LGPL-3',
