@@ -14,6 +14,7 @@
     'website': "http://www.odoo.com",
     'data': [
         'views/report_invoice.xml',
+        'data/l10n_latam.document.type.csv',
     ],
     'installable': True,
     'application': True,
