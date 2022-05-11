@@ -8,10 +8,11 @@
         <t t-set="report_number" t-value="o.name"/>
         <!--<t t-set="report_number" t-value="'XXXXXXXXXXX'"/>-->
         <t t-set="pre_printed_report" t-value="report_type == 'pdf'"/>
+        <t t-set="pre_printed_report" t-value="report_type == 'pdf'"/>
         <t t-set="report_name" t-value="o.l10n_latam_document_type_id.name"/>
         <t t-set="header_address" t-value="o.partner_id"/>
         <t t-set="custom_footer">
-            <t t-call="addval_vendor_bills.custom_footer"/>
+            <t t-call="addval_upgrade_bills.custom_footer"/>
         </t>
 
         <div>
@@ -133,7 +134,7 @@
     <template id="report_invoice_document" inherit_id="account.report_invoice_document" primary="True">
 
         <t t-set="o" position="after">
-            <t t-set="custom_header" t-value="'addval_vendor_bills.custom_header'"/>
+            <t t-set="custom_header" t-value="'addval_upgrade_bills.custom_header'"/>
         </t>
 
         <!-- remove default partner address -->
@@ -181,7 +182,7 @@
 
         <!-- replace information section and usage chilean style -->
         <div id="informations" position="replace">
-            <t t-call="addval_vendor_bills.informations"/>
+            <t t-call="addval_upgrade_bills.informations"/>
         </div>
 
         <!--  we remove the ml auto and also give more space to avoid multiple lines on tax detail -->
@@ -203,20 +204,19 @@
 
     </template>
 
-    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation>
+    <!-- FIXME: Temp fix to allow fetching invoice_documemt in Studio Reports with localisation -->
     <template id="report_invoice" inherit_id="account.report_invoice">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
-            <t t-if="o._get_name_invoice_report() == 'addval_vendor_bills.report_invoice_document'"
-                t-call="addval_vendor_bills.report_invoice_document" t-lang="lang"/>
+            <t t-if="o._get_name_invoice_report() == 'addval_upgrade_bills.report_invoice_document'"
+                t-call="addval_upgrade_bills.report_invoice_document" t-lang="lang"/>
         </xpath>
     </template>
 
     <template id="report_invoice_with_payments" inherit_id="account.report_invoice_with_payments">
         <xpath expr='//t[@t-call="account.report_invoice_document"]' position="after">
-            <t t-if="o._get_name_invoice_report() == 'addval_vendor_bills.report_invoice_document'"
-                t-call="addval_vendor_bills.report_invoice_document" t-lang="lang"/>
+            <t t-if="o._get_name_invoice_report() == 'addval_upgrade_bills.report_invoice_document'"
+                t-call="addval_upgrade_bills.report_invoice_document" t-lang="lang"/>
         </xpath>
     </template>
-    -->
 
 </odoo>

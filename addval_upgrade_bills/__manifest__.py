@@ -2,9 +2,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'addval_vendor_bills_customization',
+    'name': 'Custom Vendor bills report (Addval)',
     'summary': 'Custom Vendor bills report (Addval)',
-    'author': 'Addval Connect',
+    'author': 'Odoo PS',
     'category': 'Customization',
     'description': "This module will change the vendor bill report layout.",
     'depends': ['account', 'l10n_cl'],
