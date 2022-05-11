@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 {
-    "name": "journal_entry_edditor_addval",
-    "summary": """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
-    "description": """
-        Long description of module's purpose
-    """,
+    "name": "addval_currency_no_constraints",
+    "summary": "Use this with caution.",
+    "description": "This module disables the currency constraints.",
     "author": "Addval Connect",
-    "website": "http://www.yourcompany.com",
+    "website": "http://www.addval.cl",
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
