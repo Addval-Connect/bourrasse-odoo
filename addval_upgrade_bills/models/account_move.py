@@ -10,6 +10,6 @@ class AccountMove(models.Model):
     def _get_name_invoice_report(self):
         self.ensure_one()
         if self.move_type == 'in_invoice':
-            return 'addval_vendor_bills.report_invoice_document'
+            return 'addval_upgrade_bills.report_invoice_document'
         return super()._get_name_invoice_report()
 
