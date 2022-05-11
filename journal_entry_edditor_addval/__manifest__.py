@@ -15,7 +15,14 @@
     "category": "Accounting/Localizations/Account Charts",
     "version": "0.1",
     # any module necessary for this one to work correctly
-    "depends": ["l10n_cl"],
+    "depends": [
+        "contacts",
+        "base_address_city",
+        "base_vat",
+        "l10n_latam_base",
+        "l10n_latam_invoice_document",
+        "uom",
+    ],
     # always loaded
     "data": [
         # 'security/ir.model.access.csv',
