@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="stock_account_report_invoice_document" inherit_id="stock_account.stock_account_report_invoice_document">
+        <xpath expr="//div[@id='total']" position="after">
+        </xpath>
+    </template>
+</odoo>
