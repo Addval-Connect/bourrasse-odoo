@@ -149,7 +149,7 @@
         <xpath expr="//span[@t-field='line.price_unit']" position="attributes">
             <attribute name="t-field"></attribute>
             <attribute name="t-esc">line.price_unit</attribute>
-            <attribute name="t-options">{"widget": "monetary", "display_currency": o.currency_id}</attribute>
+            <attribute name="t-options">{"widget": "monetary", "display_currency": o.currency_id, "precision": 2}</attribute>
         </xpath>
 
         <xpath expr="//span[@id='line_tax_ids']" position="attributes">
