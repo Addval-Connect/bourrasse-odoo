@@ -3,7 +3,7 @@
     <data>
 
         <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
-            <xpath expr="//div[@id='information']" position="replace">
+            <xpath expr="//div[@id='informations']" position="replace">
                 <div id="informations" class="row mt8 mb8">
                     <div class="col-6">
                         <strong>
