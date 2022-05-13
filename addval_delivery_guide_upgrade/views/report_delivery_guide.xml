@@ -8,13 +8,13 @@
             </xpath>
         </template>
 
-        <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
+        <!-- <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
             <xpath expr="//t[@t-call='l10n_cl_edi_stock.stock_informations']" position="replace">
                 <t t-call="addval_delivery_guide_upgrade.stock_informations"/>
             </xpath>
-        </template>
+        </template> -->
 
-        <record id="action_delivery_guide_report_pdf" model="ir.actions.report">
+        <!-- <record id="action_delivery_guide_report_pdf" model="ir.actions.report">
             <field name="name">Delivery Guide SII (DTE 52)</field>
             <field name="model">stock.picking</field>
             <field name="report_type">qweb-pdf</field>
@@ -23,7 +23,7 @@
             <field name="print_report_name">'GDE Guide SII - %s' % (object.name)</field>
             <field name="binding_model_id" ref="model_stock_picking"/>
             <field name="binding_type">report</field>
-        </record>
+        </record> -->
 
     </data>
 </odoo>
