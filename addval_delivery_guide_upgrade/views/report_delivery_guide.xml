@@ -3,7 +3,7 @@
     <data>
 
         <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
-            <xpath expr="//strong[Text='Address:']" position="replace">
+            <xpath expr="//strong[Text()='Address:']" position="replace">
                 <strong>Address:</strong>
             </xpath>
         </template>
