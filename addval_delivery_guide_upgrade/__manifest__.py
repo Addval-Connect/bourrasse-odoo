@@ -13,8 +13,8 @@
     "author": "Addval Connect",
     "website": "http://www.addval.cl",
     "data": [
-        "views/report_delivery_guide.xml",
+        # "views/report_delivery_guide.xml",
     ],
     "installable": True,
-    "application": True,
+    "application": False,
 }
