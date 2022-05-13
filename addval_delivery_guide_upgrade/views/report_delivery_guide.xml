@@ -2,7 +2,47 @@
 <odoo>
     <data>
 
+        <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
+            <xpath expr="//div[@id='informations']" position="replace">
+                <div id="informations" class="row mt8 mb8">
+                    <div class="col-6">
+                        <strong>
+                            <span t-att-style="'color: %s;' % o.company_id.secondary_color">Date:</span>
+                        </strong>
+                        <span t-esc="o.scheduled_date.date()" t-options='{"widget": "date"}'/>
+                        <br/>
+                        <strong>Customer:</strong>
+                        <span t-field="o.partner_id.name"/>
+                        <br/>
+
+                        <t t-if="o.partner_id.vat and o.partner_id.l10n_latam_identification_type_id">
+                            <strong>
+                                <t t-esc="o.partner_id.l10n_latam_identification_type_id.name or o.company_id.country_id.vat_label"
+                                id="inv_tax_id_label"/>:
+                            </strong>
+                            <span t-esc="o.partner_id.vat"/>
+                            <br/>
+                        </t>
+                        <strong>GIRO:</strong>
+                        <span t-esc="o.partner_id.commercial_partner_id.l10n_cl_activity_description or o.partner_id.l10n_cl_activity_description or ''"/>
+                        <br/>
+                    </div>
+                    <div class="col-6">
+                        <br/>
+                        <strong>Address:</strong>
+                        <span t-field="o.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': true, 'no_tag_br': True}"/>
+                        <br/>
+                        <strong>Order:</strong>
+                        <span t-field="o.origin"/>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
         <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
+            <xpath expr="//t[@t-call='l10n_cl_edi_stock.stock_informations']" position="replace">
+                <t t-call="addval_delivery_guide_upgrade.stock_informations"/>
+            </xpath>
         </template>
 
         <record id="action_delivery_guide_report_pdf" model="ir.actions.report">
