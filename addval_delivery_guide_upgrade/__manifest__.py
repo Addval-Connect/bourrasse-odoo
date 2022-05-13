@@ -12,7 +12,9 @@
     "license": "LGPL-3",
     "author": "Addval Connect",
     "website": "http://www.addval.cl",
-    "data": [],
+    "data": [
+        "views/report_delivery_guide.xml",
+    ],
     "installable": True,
     "application": True,
 }

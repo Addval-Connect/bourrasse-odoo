@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="action_delivery_guide_report_pdf" inherit_id="l10n_cl_edi_stock.action_delivery_guide_report_pdf">
+        </record>
+
+    </data>
+</odoo>
