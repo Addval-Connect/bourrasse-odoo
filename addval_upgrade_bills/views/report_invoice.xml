@@ -18,8 +18,8 @@
         <div>
             <div class="row">
                 <div name="left-upper-side" class="col-8">
-                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
-                         style="max-height: 45px;" alt="Logo"/>
+                    <!-- <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                         style="max-height: 45px;" alt="Logo"/> -->
                     <br/>
                     <strong>
                         <span t-field="o.partner_id.name"/>
