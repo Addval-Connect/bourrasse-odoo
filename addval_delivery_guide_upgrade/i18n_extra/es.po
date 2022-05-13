@@ -16,21 +16,6 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: addval_delivery_guide_upgrade
-#: model:ir.actions.report,print_report_name:addval_delivery_guide_upgrade.action_delivery_guide_report_pdf
-msgid "'GDE Guide SII - %s' % (object.name)"
-msgstr "'GDE Guía de Despacho SII - %s' % (object.name)"
-
-#. module: addval_delivery_guide_upgrade
 #: model_terms:ir.ui.view,arch_db:addval_delivery_guide_upgrade.stock_informations
 msgid "<strong>Address:</strong>"
 msgstr "<strong>Dirección:</strong>"
-
-#. module: addval_delivery_guide_upgrade
-#: model:ir.actions.report,name:addval_delivery_guide_upgrade.action_delivery_guide_report_pdf
-msgid "Delivery Guide SII (DTE 52)"
-msgstr "Guía de Despacho SII (DTE 52)"
-
-#. module: addval_delivery_guide_upgrade
-#: model:ir.model,name:addval_delivery_guide_upgrade.model_stock_picking
-msgid "Transfer"
-msgstr "Albarán"
