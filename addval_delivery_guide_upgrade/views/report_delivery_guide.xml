@@ -2,17 +2,18 @@
 <odoo>
     <data>
 
+        
+
         <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
             <xpath expr="//div[@id='informations']/div[2]/strong[1]" position="replace">
                 <strong>Address:</strong>
             </xpath>
         </template>
 
-        <!-- <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
-            <xpath expr="//t[@t-call='l10n_cl_edi_stock.stock_informations']" position="replace">
-                <t t-call="addval_delivery_guide_upgrade.stock_informations"/>
-            </xpath>
-        </template> -->
+        <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
+            <xpath expr="//th[@name='th_code']" position="replace"/>
+            <xpath expr="//t[@t-set='line_amounts']/tr[1]/td[1]" position="replace"/>
+        </template>
 
         <!-- <record id="action_delivery_guide_report_pdf" model="ir.actions.report">
             <field name="name">Delivery Guide SII (DTE 52)</field>
