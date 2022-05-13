@@ -3,15 +3,8 @@
     <data>
 
         <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
-            <xpath expr="//div[@id='informations']/div[2]" position="replace">
-                <div class="col-6">
-                    <br/>
-                    <strong>Address:</strong>
-                    <span t-field="o.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': true, 'no_tag_br': True}"/>
-                    <br/>
-                    <strong>Order:</strong>
-                    <span t-field="o.origin"/>
-                </div>
+            <xpath expr="//div[@id='informations']/div[2]/strong[1]" position="replace">
+                <strong>Address:</strong>
             </xpath>
         </template>
 
