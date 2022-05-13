@@ -16,5 +16,5 @@
         # "views/report_delivery_guide.xml",
     ],
     "installable": True,
-    "application": False,
+    "application": True,
 }
