@@ -1,0 +1,27 @@
+# Translation of Odoo Server.
+# This file contains corrections to the translation of the following modules:
+# 	* l10n_cl_edi_stock
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-05-13 17:45+0000\n"
+"PO-Revision-Date: 2022-05-13 14:49-0300\n"
+"Last-Translator: Daniel Herrmann <dherrmann@addval.cl>\n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 2.4.3\n"
+
+#. module: l10n_cl_edi_stock
+#: model_terms:ir.ui.view,arch_db:l10n_cl_edi_stock.stock_informations
+msgid ""
+"<br/>\n"
+"                    <strong>Address:</strong>"
+msgstr ""
+"<br/>\n"
+"                    <strong>Dirección:</strong>"
