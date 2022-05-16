@@ -158,10 +158,11 @@
 
         <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" position="attributes">
             <attribute name="t-value">current_subtotal + l10n_cl_values['price_subtotal']</attribute>
+            <!-- <attribute name="t-value">current_subtotal + l10n_cl_values['price_subtotal']</attribute> -->
         </t>
 
         <xpath expr="//th[@name='th_subtotal']/span[@groups='account.group_show_line_subtotals_tax_included']" position="replace">
-            <span groups="account.group_show_line_subtotals_tax_included">JAI JINENDRA!!!! Amount</span>
+            <span groups="account.group_show_line_subtotals_tax_included">Amount</span>
         </xpath>
 
         <span t-field="line.price_subtotal" position="attributes">
