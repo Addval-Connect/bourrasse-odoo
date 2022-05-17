@@ -14,6 +14,7 @@
     "website": "http://www.addval.cl",
     "data": [
         "views/report_delivery_guide.xml",
+        "template/dte_template.xml",
     ],
     "installable": True,
     "application": True,
