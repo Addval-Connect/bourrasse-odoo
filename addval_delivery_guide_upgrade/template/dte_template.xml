@@ -2,14 +2,14 @@
 <odoo>
     <data>
         <template id="dte_subtemplate" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
-            <RznSoc t-esc="format_length(picking.company_id.partner_id.name, 100)" position="replace">
+            <xpath expr="//RznSoc" position="replace">                
                 <t t-if="picking.company_id.partner_id.parent_name">
                     <RznSoc t-esc="format_length(picking.company_id.partner_id.parent_name, 100)" />
                 </t>
                 <t t-if="not picking.company_id.partner_id.parent_name">
                     <RznSoc t-esc="format_length(picking.company_id.partner_id.name, 100)" />
                 </t>
-            </RznSoc>
+            </xpath>
         </template>
     </data>
 </odoo>
