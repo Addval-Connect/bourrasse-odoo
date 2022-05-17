@@ -2,29 +2,24 @@
 <odoo>
     <data>
 
-        
-
         <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
             <xpath expr="//div[@id='informations']/div[2]/strong[1]" position="replace">
                 <strong>Address:</strong>
             </xpath>
+            <span t-field="o.partner_id.name" position="replace">
+                <t t-if="o.partner_id.parent_name">
+                    <span t-field="o.partner_id.parent_name" />
+                </t>
+                <t t-if="not o.partner_id.parent_name">
+                    <span t-field="o.partner_id.name" />
+                </t>
+            </span>
         </template>
 
         <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
             <xpath expr="//th[@name='th_code']" position="replace"/>
             <xpath expr="//t[@t-foreach='o.move_lines']/tr/td[1]" position="replace"/>
         </template>
-
-        <!-- <record id="action_delivery_guide_report_pdf" model="ir.actions.report">
-            <field name="name">Delivery Guide SII (DTE 52)</field>
-            <field name="model">stock.picking</field>
-            <field name="report_type">qweb-pdf</field>
-            <field name="report_name">addval_delivery_guide_upgrade.delivery_guide_document</field>
-            <field name="report_file">addval_delivery_guide_upgrade.delivery_guide_document</field>
-            <field name="print_report_name">'GDE Guide SII - %s' % (object.name)</field>
-            <field name="binding_model_id" ref="model_stock_picking"/>
-            <field name="binding_type">report</field>
-        </record> -->
 
     </data>
 </odoo>
