@@ -10,7 +10,7 @@
                 <t t-if="o.partner_id.parent_name">
                     <span t-field="o.partner_id.parent_name" />
                 </t>
-                <t t-if="not o.partner_id.parent_name">
+                <t t-else="">
                     <span t-field="o.partner_id.name" />
                 </t>
             </span>

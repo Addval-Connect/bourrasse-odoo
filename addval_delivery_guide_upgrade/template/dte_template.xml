@@ -6,7 +6,7 @@
                 <t t-if="picking.company_id.partner_id.parent_name">
                     <RznSoc t-esc="format_length(picking.company_id.partner_id.parent_name, 100)" />
                 </t>
-                <t t-if="not picking.company_id.partner_id.parent_name">
+                <t t-else="">
                     <RznSoc t-esc="format_length(picking.company_id.partner_id.name, 100)" />
                 </t>
             </xpath>
@@ -19,10 +19,10 @@
         </template>
 
         <template id="dte_template" inherit_id="l10n_cl_edi_stock.dte_template">
-            <xpath expr="//t[@t-else='']" position="replace">
-                <t t-else="">
+            <xpath expr="//t" position="replace">
+                <!-- <t t-else="">
                     <t t-call="addval_delivery_guide_upgrade.documento_dte"/>
-                </t>
+                </t> -->
             </xpath>
         </template>
     </data>
