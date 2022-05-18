@@ -2,23 +2,14 @@
 <odoo>
     <data>
         <template id="dte_subtemplate" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
-            <xpath expr="//RznSocRecep" position="replace">           
+            <RznSocRecep t-esc="format_length(picking.partner_id.name, 100)" position="replace">           
                 <t t-if="picking.partner_id.parent_name">
                     <RznSocRecep t-esc="format_length(picking.partner_id.parent_name, 100)" />
                 </t>
-                <t t-if="not picking.partner_id.parent_name">
+                <t t-else="">
                     <RznSocRecep t-esc="format_length(picking.partner_id.name, 100)" />
                 </t>
-            </xpath>
-        </template>
-
-        <template id="documento_dte">
-            <Documento t-att-ID="doc_id">
-                <t t-call="addval_delivery_guide_upgrade.dte_subtemplate"/>
-            </Documento>
-        </template>
-
-        <template id="dte_template" inherit_id="l10n_cl_edi_stock.dte_template">
+            </RznSocRecep>
         </template>
     </data>
 </odoo>
