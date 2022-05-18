@@ -20,9 +20,6 @@
 
         <template id="dte_template" inherit_id="l10n_cl_edi_stock.dte_template">
             <xpath expr="//t" position="replace">
-                <!-- <t t-else="">
-                    <t t-call="addval_delivery_guide_upgrade.documento_dte"/>
-                </t> -->
             </xpath>
         </template>
     </data>
