@@ -17,10 +17,5 @@
                 <t t-call="addval_delivery_guide_upgrade.dte_subtemplate"/>
             </Documento>
         </template>
-
-        <template id="dte_template" inherit_id="l10n_cl_edi_stock.dte_template">
-            <xpath expr="//t" position="replace">
-            </xpath>
-        </template>
     </data>
 </odoo>
