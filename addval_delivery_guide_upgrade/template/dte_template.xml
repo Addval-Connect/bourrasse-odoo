@@ -19,11 +19,10 @@
         </template>
 
         <template id="dte_template" inherit_id="l10n_cl_edi_stock.dte_template">
-            <xpath expr="//t[@t-call='l10n_cl_edi_stock.dte_subtemplate']" position="replace">
-                <t t-call="addval_delivery_guide_upgrade.dte_subtemplate"/>
-            </xpath>
-            <xpath expr="//t[@t-call='l10n_cl_edi_stock.documento_dte']" position="replace">
-                <t t-call="addval_delivery_guide_upgrade.documento_dte"/>
+            <xpath expr="//t[@t-else='']" position="replace">
+                <t t-else="">
+                    <t t-call="addval_delivery_guide_upgrade.documento_dte"/>
+                </t>
             </xpath>
         </template>
     </data>
