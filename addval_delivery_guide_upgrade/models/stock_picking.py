@@ -1,7 +1,14 @@
-from odoo import models
+# -*- coding: utf-8 -*-
+
+from odoo import _, models
+from odoo.tools import float_repr
+
+TAX19_SII_CODE = 14
 
 
 class Picking(models.Model):
+    """Extension of l10n_cl_edi_stock.stock.picking to remove delivery guide unit price rounding and to  enable multiple locations for delivery"""
+
     _name = "stock.picking"
     _inherit = ["stock.picking"]
 
