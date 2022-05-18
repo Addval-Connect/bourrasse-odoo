@@ -6,7 +6,7 @@
                 <t t-if="picking.company_id.partner_id.parent_name">
                     <RznSoc t-esc="format_length(picking.company_id.partner_id.parent_name, 100)" />
                 </t>
-                <t t-else="">
+                <t t-if="not picking.company_id.partner_id.parent_name">
                     <RznSoc t-esc="format_length(picking.company_id.partner_id.name, 100)" />
                 </t>
             </xpath>
