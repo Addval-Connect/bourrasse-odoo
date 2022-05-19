@@ -25,9 +25,11 @@
                 </th>
             </th>
             <xpath expr="//t[@t-foreach='o.move_lines']/tr/td[2]" position="replace">
-                <span t-field="line.product_id.name"/>
-                <br/>
-                <span t-field="line.product_id.description"/>
+                <td>
+                    <span t-field="line.product_id.name"/>
+                    <br/>
+                    <span t-field="line.product_id.description"/>
+                </td>
             </xpath>
         </template>
 
