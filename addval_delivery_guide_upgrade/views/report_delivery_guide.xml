@@ -17,8 +17,18 @@
         </template>
 
         <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
-            <xpath expr="//th[@name='th_code']" position="replace"/>
-            <xpath expr="//t[@t-foreach='o.move_lines']/tr/td[1]" position="replace"/>
+            <th name='th_code' position="replace"/>
+            <xpath expr="//t[@t-foreach='o.move_lines']/tr/td[1]" position="replace"/>       
+            <th name='th_product' position="replace">
+                <th name='th_description'>
+                    <strong>Description</strong>
+                </th>
+            </th>
+            <xpath expr="//t[@t-foreach='o.move_lines']/tr/td[2]" position="replace">
+                <span t-field="line.product_id.name"/>
+                <br/>
+                <span t-field="line.product_id.description"/>
+            </xpath>
         </template>
 
     </data>
