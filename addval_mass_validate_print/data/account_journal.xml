@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="credit_note_journal" model="account.journal">
+        <field name="name">Credit Notes</field>
+        <field name="type">sale</field>
+        <field name="code">CN</field>
+        <field name="color">11</field>
+        <field name="sequence">11</field>
+    </record>
+</odoo>
