@@ -68,16 +68,14 @@ class ValidateAccountMove(models.TransientModel):
         AccountMoves = (
             self.env["account.move"]
             .browse(selected_ids)
-            .filtered(lambda x: x.payment_state == "not_paid")
+            .filtered(lambda x: x.payment_state != "not_paid")
         )
         if AccountMoves:
-            invoice_numbers = [
-                rec + "-" + state + "\n"
-                for rec, state in zip(
-                    AccountMoves.mapped("name"), AccountMoves.mapped("payment_state")
-                )
-            ]
+            invoice_numbers = [rec + "\n" for rec in AccountMoves.mapped("name")]
             raise UserError(
-                _("Please remove below Invoices. \n%s" % "".join(invoice_numbers))
+                _(
+                    "Bulk validate is apply only on unpaid invoices. Please remove below Invoices. \n%s"
+                    % "".join(invoice_numbers)
+                )
             )
         return super(ValidateAccountMove, self).validate_move()
