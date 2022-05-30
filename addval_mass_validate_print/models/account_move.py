@@ -72,8 +72,10 @@ class ValidateAccountMove(models.TransientModel):
         )
         if AccountMoves:
             invoice_numbers = [
-                rec + "-" + rec.payment_state + "\n"
-                for rec in AccountMoves.mapped("name")
+                rec + "-" + state + "\n"
+                for rec, state in zip(
+                    AccountMoves.mapped("name"), AccountMoves.mapped("payment_state")
+                )
             ]
             raise UserError(
                 _("Please remove below Invoices. \n%s" % "".join(invoice_numbers))
