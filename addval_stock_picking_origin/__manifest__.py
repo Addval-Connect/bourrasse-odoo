@@ -2,17 +2,19 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    "name": "Monetary Widget with fixed two digits (Addval)",
-    "summary": "Monetary Widget with fixed two digits (Addval)",
+    "name": "Stock Picking Origin Document (Addval)",
+    "summary": "This module changes the origin field of stock pickings to directly link to the document that created de pciking, if it exists.",
     "category": "Customization",
-    "description": "This module will make available a monetary widget wich always shows thwo decimal places.",
-    "depends": ["base"],
+    "description": "",
+    "depends": ["stock,sale"],
     "version": "1.0",
     "auto_install": False,
     "license": "LGPL-3",
     "author": "Addval Connect",
     "website": "http://www.addval.cl",
-    "data": [],
+    "data": [
+        # "views/report_invoice.xml",
+    ],
     "installable": True,
     "application": True,
 }
