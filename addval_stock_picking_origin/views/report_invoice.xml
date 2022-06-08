@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <template id="stock_account_report_invoice_document_disabled" inherit_id="stock_account.stock_account_report_invoice_document">
-        <xpath expr="//table[@name='invoice_snln_table']" position="replace">
-        </xpath>
-    </template>
-</odoo>
