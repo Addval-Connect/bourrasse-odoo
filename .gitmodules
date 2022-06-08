@@ -1,4 +1,0 @@
-[submodule "addval_accounting"]
-	path = addval_accounting
-	url = git@github.com:Addval-Connect/odoo-addval-accounting.git
-	branch = main
