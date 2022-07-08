@@ -6,6 +6,7 @@
     "website": "http://www.addval.cl",
     "category": "Accounting",
     "version": "0.2",
+    "license": "Other proprietary",
     "depends": ["l10n_cl"],
     "data": [],
     "installable": True,
