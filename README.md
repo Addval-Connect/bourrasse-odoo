@@ -54,10 +54,10 @@
 * go to <https://www.odoo.sh/project/{PROJECT_NAME}/branches/{BRANCH_NAME}/history>
 * drag and drop the staging branch to the production branch:
 
-    ![Image Not Found](Addval-Connect\odoo-addval-modules\documentation\resources\OdooDragMerge.png?raw=true "Optional Title")
+    ![Image Not Found](documentation\resources\OdooDragMerge.png?raw=true "Optional Title")
 
 * select merge:
-    ![Image Not Found](Addval-Connect\odoo-addval-modules\documentation\resources\OdooDragMergeSelect.png?raw=true "Optional Title")
+    ![Image Not Found](documentation\resources\OdooDragMergeSelect.png?raw=true "Optional Title")
 
 ### Manual Git commands
 
@@ -89,12 +89,12 @@ If the previous steps did not work, you can use the following commands to merge 
 
 * Connect to the database:
 
-    ![Image Not Found](Addval-Connect\odoo-addval-modules\documentation\resources\ConnectOdooDatabase.png?raw=true "Optional Title")
+    ![Image Not Found](documentation\resources\ConnectOdooDatabase.png?raw=true "Optional Title")
 
 * Go to the applications module:
 
-    ![Image Not Found](Addval-Connect\odoo-addval-modules\documentation\resources\OdooApps.png?raw=true "Optional Title")
+    ![Image Not Found](documentation\resources\OdooApps.png?raw=true "Optional Title")
 
 * Search for your desired application and update it:
 
-    ![Image Not Found](Addval-Connect\odoo-addval-modules\documentation\resources\OdooUpdateModule.png?raw=true "Optional Title")
+    ![Image Not Found](documentation\resources\OdooUpdateModule.png?raw=true "Optional Title")
