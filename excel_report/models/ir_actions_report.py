@@ -78,16 +78,12 @@ class IrActionsReport(models.Model):
     excel_path_libreoffice = fields.Char(
         string='OS path to libreoffice', default=_get_path_libreoffice_excel, help="For linux just libreoffice")
 
-    def _render_excel(self, report_ref, res_ids, data=None):
-        return self.render_excel(report_ref, res_ids, data)
-
     @api.model
-    def render_excel(self, report_ref, docids, data=None):
+    def render_excel(self, docids, data=None):
         if not data:
             data = {}
         data.setdefault('report_type', 'excel')
-        report = self._get_report(report_ref)
-        data = self._get_rendering_context(report, docids, data)
+        data = self._get_rendering_context(docids, data)
         # READ DATA
         content = base64.b64decode(self.template_excel)
 

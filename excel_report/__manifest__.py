@@ -18,7 +18,7 @@ report to excel report to xlsx report xlsx template reports excel reports xlsx \
     # Check https://github.com/odoo/odoo/blob/13.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Technical Settings',
-    'version': '16.3.1.2',
+    'version': '15.3.1.2',
     "license": "OPL-1",
     'price': 49,
     'currency': 'EUR',

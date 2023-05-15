@@ -32,7 +32,7 @@ from odoo import http
 from odoo.http import content_disposition, request
 from odoo.tools.safe_eval import safe_eval, time
 from werkzeug.urls import url_decode
-from odoo.addons.web.controllers.report import ReportController
+from odoo.addons.web.controllers.main import ReportController
 import json
 
 class ReportControllerExcel(ReportController):
@@ -53,7 +53,7 @@ class ReportControllerExcel(ReportController):
             if data_new.get('context'):
                 data_new['context'] = json.loads(data_new['context'])
                 context.update(data_new['context'])
-            text, type = report.with_context(context).render_excel(reportname, docids_new, data=data_new)
+            text, type = report.with_context(context).render_excel(docids_new, data=data_new)
             texthttpheaders = [('Content-Type', 'application/vnd.ms-excel'), ('Content-Length', len(text))]
             if type == 'pdf':
                 texthttpheaders = [('Content-Type', 'application/pdf'), ('Content-Length', len(text))]
