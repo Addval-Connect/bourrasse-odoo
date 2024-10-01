@@ -2,3 +2,6 @@
 	path = Addval-Connect/odoo-addval-modules
 	url = git@github.com:Addval-Connect/odoo-addval-modules.git
 	branch = Odoo-15-test-new-accounting
+[submodule "bourrasse_addons"]
+	path = bourrasse_addons
+	url = git@github.com:vaopaso/bourrasse_addons.git
