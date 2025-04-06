@@ -20,21 +20,32 @@ class ReportControllerExcel(ReportController):
             report = request.env['ir.actions.report']._get_report_from_name(reportname)
             context = dict(request.env.context)
             data_new = dict(data)
+            docids_new = None
 
             if docids:
                 docids_new = [int(i) for i in docids.split(',')]
+
+            # Handle options data
             if data_new.get('options'):
                 data_new.update(json.loads(data_new.pop('options')))
-            if data_new.get('context'):
-                data_new['context'] = json.loads(data_new['context'])
-                context.update(data_new['context'])
+
+            # Handle context data - Add null check
+            if data_new.get('context') and data_new['context']:
+                try:
+                    context_data = json.loads(data_new['context'])
+                    data_new['context'] = context_data
+                    context.update(context_data)
+                except json.JSONDecodeError:
+                    # If context parsing fails, use empty dict
+                    data_new['context'] = {}
+
             text, type = report.with_context(context).render_excel(docids_new, data=data_new)
             texthttpheaders = [('Content-Type', 'application/vnd.ms-excel'), ('Content-Length', len(text))]
             if type == 'pdf':
                 texthttpheaders = [('Content-Type', 'application/pdf'), ('Content-Length', len(text))]
             return request.make_response(text, headers=texthttpheaders)
-        res = super(ReportControllerExcel, self).report_routes(reportname, docids, converter, **data)
-        return res
+
+        return super(ReportControllerExcel, self).report_routes(reportname, docids, converter, **data)
 
     @http.route(['/report/download'], type='http', auth="user")
     def report_download(self, data, context=None):
@@ -84,3 +95,4 @@ class ReportControllerExcel(ReportController):
             return response
         res = super(ReportControllerExcel, self).report_download(data, context)
         return res
+
