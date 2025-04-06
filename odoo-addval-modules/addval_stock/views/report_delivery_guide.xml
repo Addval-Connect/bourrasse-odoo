@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="delivery_guide_informations" inherit_id="addval_accounting.invoice_data" priority="21" primary="True">
+            <xpath expr="//t[@id='references']" position="replace">
+                <t id="references" t-if="o.sale_id and o.sale_id.client_order_ref">
+                    <table class="table table-sm o_main_table small" name="invoice_references">
+                        <thead>
+                            <tr>
+                                <th name="th_reference_origin" class="text-center">
+                                    <span>Origin Ref</span>
+                                </th>
+                                <th name="th_reference_doc_type" class="text-left">
+                                    <span>Reference Doc Type</span>
+                                </th>
+                                <th name="th_reference_code" class="text-center">
+                                    <span>Doc Code</span>
+                                </th>
+                                <th name="th_reference_reason" class="text-left">
+                                    <span>Reason</span>
+                                </th>
+                                <th name="th_reference_date" class="text-left">
+                                    <span>Date</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="invoice_tbody">
+                            <tr>
+                                <td class="text-left" name="td_reference_origin">
+                                    <span t-field="o.sale_id.client_order_ref" />
+                                </td>
+                                <td class="text-left" name="td_reference_doc_type">
+                                    <span>Orden de compra</span>
+                                </td>
+                                <td class="text-left" name="td_reference_code">
+                                    <span>801</span>
+                                </td>
+                                <td class="text-left" name="td_reference_reason">
+                                    <span>Orden de compra del cliente</span>
+                                </td>
+                                <td class="text-left" name="td_reference_date">
+                                    <t t-if="o.sale_id.client_order_date">
+                                        <span t-esc="o.sale_id.client_order_date" t-options="{'widget': 'date'}" />
+                                    </t>
+                                    <t t-else="">
+                                        <span t-esc="o.sale_id.date_order.date()" t-options="{'widget': 'date'}" />
+                                    </t>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr class="mb-1" style="border-top: 0px" />
+                </t>
+            </xpath>
+        </template>
+        <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
+            <th name='th_code' position="replace" />
+            <xpath expr="//t[@t-as='line']/tr/td[1]" position="replace" />
+            <span t-field="line.product_id.description_picking" position="after">
+                <span t-if="line.description_picking and (line.description_picking != line.product_id.name)" t-field="line.description_picking" />
+            </span>
+            <t t-set="custom_header" position="replace" />
+            <xpath expr="//t[@t-call='web.external_layout']/div[@class='page']" position="before">
+                <t t-set="header_data" t-value="o.get_header_data()" />
+                <t t-set="custom_header" t-value="'addval_accounting.custom_header'" />
+            </xpath>
+            <xpath expr="//div[@class='page']/div[1]" position="after">
+                <t t-set="invoice_data" t-value="o.get_invoice_data()" />
+                <t t-call="addval_stock.delivery_guide_informations" />
+            </xpath>
+            <xpath expr="//div[@class='page']/div[1]" position="replace" />
+            <xpath expr="//div[@class='col-5']/.." position="after">
+                <div class="row" id="note" t-if="o.note">
+                    <div class="col">
+                        <span t-field="o.note" />
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//div[@class='col-5']" position="attributes">
+                <attribute name="class">col-4 text-center</attribute>
+            </xpath>
+            <xpath expr="//div[@class='col-7 text-justify']" position="replace" />
+
+            <xpath expr="//div[@class='col-4 text-center']" position="after">
+                <div name="transferable-legend" class="col-2" />
+                <t t-call="addval_accounting.transferable_table" />
+            </xpath>
+            <table t-if="o.move_lines" position="attributes">
+                <attribute name="class">table table-sm o_main_table small</attribute>
+            </table>
+            <span t-esc="float_repr(line_amounts.get('price_unit', False), 2)" position="attributes">
+                <attribute name="t-esc">line_amounts.get('price_unit', 0.0)</attribute>
+                <attribute name="t-options">{"widget": "monetary", "display_currency": o.company_id.currency_id}</attribute>
+            </span>
+        </template>
+
+        <template id="delivery_guide_cedible" inherit_id="addval_stock.delivery_guide_document" primary="True">
+            <div name="transferable-legend" position="inside">
+                <p class="text-right" style="margin-bottom: 0px;">
+                    <br />
+                    <br />
+                    <font style="color: rgb(255, 0, 0);">CEDIBLE</font>
+                </p>
+            </div>
+        </template>
+
+        <record id="action_delivery_guide_cedible" model="ir.actions.report">
+            <field name="name">Guía Despacho Cedible</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">addval_stock.delivery_guide_cedible</field>
+            <field name="report_file">addval_stock.delivery_guide_cedible</field>
+            <field name="print_report_name">'Cedible - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="stock.model_stock_picking" />
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>
