@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="dte_subtemplate" inherit_id="l10n_cl_edi_stock.dte_subtemplate">
+            <RznSocRecep t-esc="format_length(picking.partner_id.name, 100)" position="replace">
+                <t t-if="picking.partner_id.parent_name">
+                    <RznSocRecep t-esc="format_length(picking.partner_id.parent_name, 100)" />
+                </t>
+                <t t-else="">
+                    <RznSocRecep t-esc="format_length(picking.partner_id.name, 100)" />
+                </t>
+            </RznSocRecep>
+            <FchRef t-esc="picking.sale_id.date_order.date()" position="replace">
+                <t t-if="picking.sale_id.client_order_date">
+                    <FchRef t-esc="picking.sale_id.client_order_date"/>
+                </t>
+                <t t-else="">
+                    <FchRef t-esc="picking.sale_id.date_order.date()"/>
+                </t>
+            </FchRef>
+        </template>
+    </data>
+</odoo>

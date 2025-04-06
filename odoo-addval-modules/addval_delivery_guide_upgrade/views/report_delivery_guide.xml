@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <template id="stock_informations" inherit_id="l10n_cl_edi_stock.stock_informations">
+            <xpath expr="//div[@id='informations']/div[2]" position="replace">
+                <div class="col-6">
+                    <br/>
+                    <strong>Address:</strong>
+                    <span t-field="o.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': true, 'no_tag_br': True}"/>
+                    <strong>Order:</strong>
+                    <span t-field="o.origin"/>
+                    <br/>
+                </div>
+            </xpath>
+            <span t-field="o.partner_id.name" position="replace">
+                <t t-if="o.partner_id.parent_name">
+                    <span t-field="o.partner_id.parent_name" />
+                </t>
+                <t t-else="">
+                    <span t-field="o.partner_id.name" />
+                </t>
+            </span>
+            <td class="text-left" name="td_reference_date" position="replace">
+                <td class="text-left" name="td_reference_date">
+                    <t t-if="o.sale_id.client_order_date">
+                        <span t-esc="o.sale_id.client_order_date" t-options="{'widget': 'date'}"/>
+                    </t>
+                    <t t-else="">
+                        <span t-esc="o.sale_id.date_order.date()" t-options="{'widget': 'date'}"/>
+                    </t>
+                </td>
+            </td>
+        </template>
+
+        <template id="delivery_guide_document" inherit_id="l10n_cl_edi_stock.delivery_guide_document">
+            <th name='th_code' position="replace"/>
+            <xpath expr="//t[@t-as='line']/tr/td[1]" position="replace"/>
+        </template>
+    </data>
+</odoo>

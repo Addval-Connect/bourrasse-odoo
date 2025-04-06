@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice" inherit_id="account.report_invoice">
+        <t t-set="lang" position="replace">
+            <t t-set="lang" t-value="o.env.context.get('lang')" />
+        </t>
+    </template>
+    <template id="report_invoice_with_payments" inherit_id="account.report_invoice_with_payments">
+        <t t-set="lang" position="replace">
+            <t t-set="lang" t-value="o.env.context.get('lang')" />
+        </t>
+    </template>
+    <template id="accounting_notes" inherit_id="addval_accounting.notes" priority="21" primary="True">
+        <span t-field="o.notes" position="replace">
+            <br />
+            <br />
+            <br />
+        </span>
+    </template>
+
+    <template id="report_invoice_document" inherit_id="l10n_cl.report_invoice_document" priority="20">
+        <t t-set="custom_header" position="replace">
+            <t t-set="header_data" t-value="o.get_header_data()" />
+            <t t-set="custom_header" t-value="'addval_accounting.custom_header'" />
+        </t>
+        <xpath expr="//t[@t-call='l10n_cl.informations']" position="replace">
+            <t t-set="invoice_data" t-value="o.get_invoice_data()" />
+            <t t-call="addval_accounting.invoice_data" />
+        </xpath>
+        <div name="transferable-table" position="attributes">
+            <attribute name="class">col-2</attribute>
+        </div>
+        <div name="transferable-legend" position="replace">
+            <t t-call="addval_accounting.transferable_table" />
+        </div>
+        <xpath expr="//table[@name='invoice_line_table']" position="attributes">
+            <attribute name="class">table table-sm o_main_table small</attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']" position="attributes">
+            <attribute name="class">row mr-1</attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']/div" position="attributes">
+            <attribute name="class">col-6</attribute>
+            <attribute name="t-attf-class"></attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']/div[1]" position="replace">
+            <t t-call="addval_accounting.accounting_notes" />
+        </xpath>
+        <xpath expr="//div[@name='transferable-table']/.." position="attributes">
+            <attribute name="class">row mt-1</attribute>
+        </xpath>
+    </template>
+
+    <template id="barcode_stamp_footer" inherit_id="l10n_cl_edi.barcode_stamp_footer">
+
+        <span t-esc="l10n_cl_values['price_subtotal']" position="attributes">
+            <attribute name="t-esc">l10n_cl_values['price_subtotal_before_taxes']</attribute>
+        </span>
+        <span t-esc="line.price_unit" position = "attributes">
+            <attribute name="t-options">{"widget": "monetary_two_decimals", "display_currency": o.currency_id}</attribute>
+        </span>
+        <xpath expr="//t[@t-if='o.l10n_cl_sii_barcode']" position="after">
+            <t t-else="">
+                <t t-set="barcode_from_xml" t-value="o.get_barcode_from_xml()" />
+                <t t-if="barcode_from_xml">
+                    <t t-set="barcode_stamp" t-value="o._pdf417_barcode(barcode_from_xml)" />
+                    <t t-if="barcode_stamp">
+                        <img class="img-fluid" t-attf-src="data:image/*;base64,{{barcode_stamp}}" />
+                        <p t-att-style="'color: %s;' % o.company_id.primary_color" class="text-center small">
+                            Timbre Electrónico SII
+                            <br />
+                            <span name="verification_url">Verifique documento en www.sii.cl</span>
+                        </p>
+                    </t>
+                </t>
+            </t>
+        </xpath>
+    </template>
+    <template id="report_invoice_transferable" inherit_id="addval_accounting.report_invoice_document">
+        <div name="transferable-table" class="col-2" position="inside">
+            <t t-if="cedible">
+                <p class="text-right" style="margin-bottom: 0px;">
+                    <br />
+                    <br />
+                    <font style="color: rgb(255, 0, 0);">CEDIBLE</font>
+                </p>
+            </t>
+        </div>
+    </template>
+
+    <template id="invoice_report_cedible">
+        <t t-call="account.report_invoice">
+            <t t-set="cedible" t-value="1" />
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang" />
+                <t t-set="print_with_payments" t-value="True" />
+                <t t-call="addval_accounting.report_invoice_transferable" />
+            </t>
+        </t>
+    </template>
+
+    <record id="action_invoice_report_cedible" model="ir.actions.report">
+        <field name="name">Factura Cedible</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">addval_accounting.invoice_report_cedible</field>
+        <field name="report_file">addval_accounting.invoice_report_cedible</field>
+        <field name="print_report_name">'Cedible - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="account.model_account_move" />
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

@@ -1,0 +1,182 @@
+# -*- coding: utf-8 -*-
+
+from odoo import _, models
+from odoo.tools import float_repr
+
+TAX19_SII_CODE = 14
+
+
+class Picking(models.Model):
+    """Extension of l10n_cl_edi_stock.stock.picking to remove delivery guide unit price rounding and to  enable multiple locations for delivery"""
+
+    _name = "stock.picking"
+    _inherit = ["stock.picking"]
+
+    def _l10n_cl_get_tax_amounts(self):
+        """
+        Calculates the totals of the tax amounts on the picking
+        :return: totals, retentions, line_amounts
+        """
+        totals = {
+            "vat_amount": 0,
+            "subtotal_amount_taxable": 0,
+            "subtotal_amount_exempt": 0,
+            "vat_percent": False,
+            "total_amount": 0,
+        }
+        retentions = {}
+        line_amounts = {}
+        guide_price = self.partner_id.l10n_cl_delivery_guide_price
+        if guide_price == "none":
+            return totals, retentions, line_amounts
+        # No support for foreign currencies: fallback on product price
+        if guide_price == "sale_order" and (
+            not self.sale_id or self.sale_id.currency_id != self.company_id.currency_id
+        ):
+            guide_price = "product"
+        max_vat_perc = 0.0
+        move_retentions = self.env["account.tax"]
+        for move in self.move_lines.filtered(lambda x: x.quantity_done > 0):
+            if guide_price == "product" or not move.sale_line_id:
+                taxes = move.product_id.taxes_id.filtered(
+                    lambda t: t.company_id == self.company_id
+                )
+                price = move.product_id.lst_price
+                qty = move.product_qty
+            elif guide_price == "sale_order":
+                sale_line = move.sale_line_id
+                taxes = sale_line.tax_id
+                qty = move.product_uom._compute_quantity(
+                    move.product_uom_qty, sale_line.product_uom
+                )
+                price = sale_line.price_unit * (1 - (sale_line.discount or 0.0) / 100.0)
+
+            tax_res = taxes.compute_all(
+                price,
+                currency=self.company_id.currency_id,
+                quantity=qty,
+                partner=self.partner_id,
+            )
+            totals["total_amount"] += tax_res["total_included"]
+
+            no_vat_taxes = True
+            for tax_val in tax_res["taxes"]:
+                tax = self.env["account.tax"].browse(tax_val["id"])
+                if tax.l10n_cl_sii_code == TAX19_SII_CODE:
+                    no_vat_taxes = False
+                    totals["vat_amount"] += tax_val["amount"]
+                    max_vat_perc = max(max_vat_perc, tax.amount)
+                elif tax.tax_group_id.id in [
+                    self.env.ref("l10n_cl.tax_group_ila").id,
+                    self.env.ref("l10n_cl.tax_group_retenciones").id,
+                ]:
+                    retentions.setdefault((tax.l10n_cl_sii_code, tax.amount), 0.0)
+                    retentions[(tax.l10n_cl_sii_code, tax.amount)] += tax_val["amount"]
+                    move_retentions |= tax
+            if no_vat_taxes:
+                totals["subtotal_amount_exempt"] += tax_res["total_excluded"]
+            else:
+                totals["subtotal_amount_taxable"] += tax_res["total_excluded"]
+
+            line_amounts[move] = {
+                "value": self.company_id.currency_id.round(tax_res["total_included"]),
+                "total_amount": self.company_id.currency_id.round(
+                    tax_res["total_excluded"]
+                ),
+                "price_unit": tax_res["total_excluded"]
+                / move.product_uom_qty,  # No rounding
+                "wh_taxes": move_retentions,
+                "exempt": not taxes and tax_res["total_excluded"] != 0.0,
+            }
+            if guide_price == "sale_order" and sale_line.discount:
+                tax_res_disc = taxes.compute_all(
+                    sale_line.price_unit,
+                    currency=self.company_id.currency_id,
+                    quantity=qty,
+                    partner=self.partner_id,
+                )
+                line_amounts[move].update(
+                    {
+                        "price_unit": tax_res_disc["total_excluded"]
+                        / move.product_uom_qty,  # No rounding
+                        "discount": sale_line.discount,
+                        "total_discount": float_repr(
+                            self.company_id.currency_id.round(
+                                tax_res_disc["total_excluded"]
+                                * sale_line.discount
+                                / 100
+                            ),
+                            0,
+                        ),
+                        "total_discount_fl": self.company_id.currency_id.round(
+                            tax_res_disc["total_excluded"] * sale_line.discount / 100
+                        ),
+                    }
+                )
+
+        totals["vat_percent"] = max_vat_perc and float_repr(max_vat_perc, 2) or False
+        totals["total_amount"] = (
+            totals.get("vat_amount", 0.0)
+            + totals.get("subtotal_amount_taxable", 0.0)
+            + totals.get("subtotal_amount_exempt", 0.0)
+        )
+        retention_res = []
+        for key in retentions:
+            retention_res.append(
+                {
+                    "tax_code": key[0],
+                    "tax_percent": key[1],
+                    "tax_amount": retentions[key],
+                }
+            )
+        return totals, retention_res, line_amounts
+
+    def get_header_data(self):
+        """get header data for invoice report"""
+        regional_office_dict = dict(
+            self.company_id._fields["l10n_cl_sii_regional_office"].selection
+        )
+        header_data = {
+            "report_number": self.l10n_latam_document_number,
+            "report_name": "GUÍA DE DESPACHO ELECTRÓNICA",
+            "primary_color": self.company_id.primary_color,
+            "header_address": self.company_id.partner_id,
+            "company_logo": self.company_id.logo if self.company_id.logo else None,
+            "company_name": self.company_id.partner_id.name,
+            "company_activity": self.company_id.partner_id.l10n_cl_activity_description,
+            "company_vat": self.company_id.partner_id._format_dotted_vat_cl(
+                self.company_id.partner_id.vat
+            )
+            if self.company_id.partner_id.vat
+            else None,
+            "regional_office": regional_office_dict.get(
+                self.company_id.l10n_cl_sii_regional_office, None
+            ),
+        }
+        return header_data
+
+    def get_invoice_data(self):
+        """get information data for invoice report"""
+        delivery_reason_dict = dict(
+            self._fields["l10n_cl_delivery_guide_reason"]._description_selection(
+                self.env
+            )
+        )
+        invoice_data = {
+            "secondary_color": self.company_id.secondary_color,
+            "invoice_date": self.scheduled_date.date(),
+            "company_name": self.partner_id.parent_name
+            if self.partner_id.parent_name
+            else self.partner_id.name,
+            "company_vat": self.partner_id._format_dotted_vat_cl(self.partner_id.vat)
+            if self.partner_id.vat
+            else None,
+            "latam_identification_type_id": self.partner_id.l10n_latam_identification_type_id,
+            "activity_description": self.partner_id.l10n_cl_activity_description
+            or None,
+            "address": self.partner_id,
+            "delivery_reason": delivery_reason_dict.get(
+                self.l10n_cl_delivery_guide_reason, None
+            ),
+        }
+        return invoice_data
