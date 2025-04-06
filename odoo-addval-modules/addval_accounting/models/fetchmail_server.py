@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 
-from odoo import _, fields, models
-from odoo.tests import Form
+from odoo import models
+# from odoo.tests import Form
 
 _logger = logging.getLogger(__name__)
 
@@ -248,3 +248,4 @@ class FetchmailServer(models.Model):
     #                 reference_line_form.date = reference_line["date"]
 
     # return invoice_form, msgs
+
