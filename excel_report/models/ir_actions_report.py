@@ -33,7 +33,7 @@ class IrActionsReport(models.Model):
         if sys.platform == 'darwin':
             return '/Applications/LibreOffice.app/Contents/MacOS/soffice'
         if sys.platform == 'win32':
-            return "C:\Program Files\LibreOffice\program\soffice.exe"
+            return r"C:\Program Files\LibreOffice\program\soffice.exe"
         return 'libreoffice'
 
     report_type = fields.Selection(
@@ -55,12 +55,28 @@ class IrActionsReport(models.Model):
         if not data:
             data = {}
         data.setdefault('report_type', 'excel')
-        data = self._get_rendering_context(docids, data)
+
+        # Get the rendering context - Updated for Odoo 18
+        report_model_name = data.get('model')
+        if report_model_name and docids:
+            # Create context with docs
+            docs = self.env[report_model_name].browse(docids)
+            data['docs'] = docs
+            data['doc_ids'] = docids
+            data['doc_model'] = report_model_name
+        else:
+            data['docs'] = []
+            data['doc_ids'] = []
+            data['doc_model'] = ''
+
         # READ DATA
+        if not self.template_excel:
+            raise ValueError("No Excel template configured for this report")
+
         content = base64.b64decode(self.template_excel)
 
         # MERGE DATA
-        # open xcel sheets
+        # open excel sheets
         wb1 = openpyxl.load_workbook(io.BytesIO(content))
         ws1 = wb1.active
 
@@ -72,26 +88,42 @@ class IrActionsReport(models.Model):
                     if isinstance(val, str):
                         result = re.findall(r"(odoo\(.*?\))$", val)
                         if len(result):
-                            new_val = eval(result[0][5: -1])
-                            if isinstance(new_val, float):
-                                new_val = str(new_val).replace('.', ',')
-                            elif isinstance(new_val, str):
-                                new_val = str(new_val)
-                            else:
-                                # insert image to cell
-                                try:
-                                    imgdata = base64.b64decode(new_val)
-                                    myio = io.BytesIO(imgdata)
-                                    img = openpyxl.drawing.image.Image(myio)
-                                    cell = ws1.cell(row=row + 1, column=column + 1)
-                                    img.anchor = cell.coordinate
-                                    ws1.add_image(img)
-                                    new_val = ''
-                                except Exception as error:
-                                    _logger.error('Error when trying insert image %s' % error)
-                                    new_val = ''
-                            ws1.cell(
-                                row=row + 1, column=column + 1).value = re.sub(r"(odoo\(.*?\))$", new_val, val)
+                            try:
+                                # Create a safe environment for evaluation
+                                eval_context = {
+                                    'doc': doc,
+                                    'docs': data['docs'],
+                                    'user': self.env.user,
+                                    'company': self.env.company,
+                                    'time': __import__('time'),
+                                    'datetime': __import__('datetime'),
+                                    'relativedelta': __import__('dateutil.relativedelta').relativedelta,
+                                }
+                                new_val = eval(result[0][5: -1], eval_context)
+
+                                if isinstance(new_val, float):
+                                    new_val = str(new_val).replace('.', ',')
+                                elif isinstance(new_val, str):
+                                    new_val = str(new_val)
+                                else:
+                                    # insert image to cell
+                                    try:
+                                        imgdata = base64.b64decode(new_val)
+                                        myio = io.BytesIO(imgdata)
+                                        img = openpyxl.drawing.image.Image(myio)
+                                        cell = ws1.cell(row=row + 1, column=column + 1)
+                                        img.anchor = cell.coordinate
+                                        ws1.add_image(img)
+                                        new_val = ''
+                                    except Exception as error:
+                                        _logger.error('Error when trying insert image %s' % error)
+                                        new_val = ''
+                                ws1.cell(
+                                    row=row + 1, column=column + 1).value = re.sub(r"(odoo\(.*?\))$", new_val, val)
+                            except Exception as e:
+                                _logger.error('Error evaluating expression %s: %s' % (result[0], e))
+                                # Keep original value if evaluation fails
+                                pass
 
         # WRITE DATA
         myio = io.BytesIO()

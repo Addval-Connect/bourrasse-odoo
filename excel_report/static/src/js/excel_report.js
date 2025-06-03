@@ -4,7 +4,7 @@ import { download } from "@web/core/network/download";
 
 registry.category("ir.actions.report handlers").add("custom_xlsx", async (action, options, env) => {
     const userService = env.services.user;
-    const context = userService ? userService.context : env.services.company.currentCompany.context;
+    const context = userService ? userService.context : (env.services.company ? env.services.company.currentCompany.context : {});
     
     function _getReportUrl(action, type) {
         let url = `/report/${type}/${action.report_name}`;
@@ -39,6 +39,15 @@ registry.category("ir.actions.report handlers").add("custom_xlsx", async (action
                     context: JSON.stringify(context),
                 },
             });
+        } catch (error) {
+            console.error("Error downloading Excel report:", error);
+            // Show user-friendly error message
+            if (env.services.notification) {
+                env.services.notification.add(
+                    "Failed to generate Excel report. Please check the report configuration and try again.",
+                    { type: "danger" }
+                );
+            }
         } finally {
             env.services.ui.unblock();
         }
