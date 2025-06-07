@@ -1,39 +1,14 @@
 # -*- coding: utf-8 -*-
-# Copyright 2019 Artem Shurshilov
-# Odoo Proprietary License v1.0
 
-# This software and associated files (the "Software") may only be used (executed,
-# modified, executed after modifications) if you have purchased a valid license
-# from the authors, typically via Odoo Apps, or if you have received a written
-# agreement from the authors of the Software (see the COPYRIGHT file).
-
-# You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
-# compatible with the terms of the Odoo Proprietary License (For example:
-# LGPL, MIT, or proprietary licenses similar to this one).
-
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
-
-# The above copyright notice and this permission notice must be included in all
-# copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
+import json
 
 from odoo import http
 from odoo.http import content_disposition, request
-from odoo.tools.safe_eval import safe_eval, time
+from odoo.tools.safe_eval import safe_eval
 from werkzeug.urls import url_decode
-from odoo.addons.web.controllers.main import ReportController
-import json
+# from odoo.addons.web.controllers import ReportController
+from odoo.addons.web.controllers.report import ReportController
+
 
 class ReportControllerExcel(ReportController):
     @http.route([
@@ -42,24 +17,60 @@ class ReportControllerExcel(ReportController):
     ], type='http', auth='user', website=True)
     def report_routes(self, reportname, docids=None, converter=None, **data):
         if converter == 'excel':
-            report = request.env['ir.actions.report']._get_report_from_name(reportname)
+            report = request.env['ir.actions.report'].search([
+                ('report_name', '=', reportname)
+            ], limit=1)
+
+            if not report:
+                return request.not_found()
+
             context = dict(request.env.context)
             data_new = dict(data)
+            docids_new = None
 
             if docids:
                 docids_new = [int(i) for i in docids.split(',')]
+
+            # Handle options data
             if data_new.get('options'):
                 data_new.update(json.loads(data_new.pop('options')))
-            if data_new.get('context'):
-                data_new['context'] = json.loads(data_new['context'])
-                context.update(data_new['context'])
-            text, type = report.with_context(context).render_excel(docids_new, data=data_new)
-            texthttpheaders = [('Content-Type', 'application/vnd.ms-excel'), ('Content-Length', len(text))]
-            if type == 'pdf':
-                texthttpheaders = [('Content-Type', 'application/pdf'), ('Content-Length', len(text))]
+
+            # Handle context data - Add null check and improved error handling
+            if data_new.get('context') and data_new['context']:
+                try:
+                    context_data = json.loads(data_new['context'])
+                    if isinstance(context_data, dict):
+                        data_new['context'] = context_data
+                        context.update(context_data)
+                    else:
+                        data_new['context'] = {}
+                except (json.JSONDecodeError, TypeError):
+                    # If context parsing fails, use empty dict
+                    data_new['context'] = {}
+            else:
+                data_new['context'] = {}
+
+            # Add model information to data for render_excel method
+            if report.model:
+                data_new['model'] = report.model
+
+            text, file_type = report.with_context(context).render_excel(docids_new, data=data_new)
+
+            # Set appropriate content type based on file type
+            content_type_map = {
+                'excel': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'pdf': 'application/pdf',
+                'ods': 'application/vnd.oasis.opendocument.spreadsheet',
+                'odt': 'application/vnd.oasis.opendocument.text',
+                'html': 'text/html'
+            }
+
+            content_type = content_type_map.get(file_type, 'application/vnd.ms-excel')
+            texthttpheaders = [('Content-Type', content_type), ('Content-Length', len(text))]
+
             return request.make_response(text, headers=texthttpheaders)
-        res = super(ReportControllerExcel, self).report_routes(reportname, docids, converter, **data)
-        return res
+
+        return super(ReportControllerExcel, self).report_routes(reportname, docids, converter, **data)
 
     @http.route(['/report/download'], type='http', auth="user")
     def report_download(self, data, context=None):
@@ -74,39 +85,49 @@ class ReportControllerExcel(ReportController):
         url, type = requestcontent[0], requestcontent[1]
         reportname = '???'
         if type in ['excel']:
-                #raise UserError(type)
-                converter = 'excel'# if type == 'qweb-pdf' else 'text'
-                extension = 'xlsx'# if type == 'qweb-pdf' else 'txt'
-                pattern = '/report/excel/'# if type == 'qweb-pdf' else '/report/text/'
-                reportname = url.split(pattern)[1].split('?')[0]
+            converter = 'excel'  # if type == 'qweb-pdf' else 'text'
+            extension = 'xlsx'  # if type == 'qweb-pdf' else 'txt'
+            pattern = '/report/excel/'  # if type == 'qweb-pdf' else '/report/text/'
+            reportname = url.split(pattern)[1].split('?')[0]
 
-                docids = None
-                if '/' in reportname:
-                    reportname, docids = reportname.split('/')
+            docids = None
+            if '/' in reportname:
+                reportname, docids = reportname.split('/')
 
-                if docids:
-                    # Generic report:
-                    response = self.report_routes(reportname, docids=docids, converter=converter, context=context)
-                else:
-                    # Particular report:
-                    data = dict(url_decode(url.split('?')[1]).items())  # decoding the args represented in JSON
-                    if 'context' in data:
-                        context, data_context = json.loads(context or '{}'), json.loads(data.pop('context'))
-                        context = json.dumps({**context, **data_context})
-                    response = self.report_routes(reportname, converter=converter, context=context, **data)
+            if docids:
+                # Generic report:
+                response = self.report_routes(reportname, docids=docids, converter=converter, context=context)
+            else:
+                # Particular report:
+                data = dict(url_decode(url.split('?')[1]).items())  # decoding the args represented in JSON
+                if 'context' in data:
+                    context, data_context = json.loads(context or '{}'), json.loads(data.pop('context'))
+                    context = json.dumps({**context, **data_context})
+                response = self.report_routes(reportname, converter=converter, context=context, **data)
 
-                report = request.env['ir.actions.report']._get_report_from_name(reportname)
-                if report.excel_out_report_type != 'excel':
-                    extension = report.excel_out_report_type
-                filename = "%s.%s" % (report.name, extension)
+            report = request.env['ir.actions.report'].search([
+                ('report_name', '=', reportname)
+            ], limit=1)
 
-                if docids:
-                    ids = [int(x) for x in docids.split(",")]
-                    obj = request.env[report.model].browse(ids)
-                    if report.print_report_name and not len(obj) > 1:
-                        report_name = safe_eval(report.print_report_name, {'object': obj, 'time': time})
-                        filename = "%s.%s" % (report_name, extension)
-                response.headers.add('Content-Disposition', content_disposition(filename))
-                return response
+            if not report:
+                return request.not_found()
+
+            if report.excel_out_report_type != 'excel':
+                extension = report.excel_out_report_type
+            filename = "%s.%s" % (report.name, extension)
+
+            if docids:
+                ids = [int(x) for x in docids.split(",")]
+                obj = request.env[report.model].browse(ids)
+                if report.print_report_name and not len(obj) > 1:
+                    eval_context = {
+                        'object': obj,
+                        'time': __import__('time'),
+                        'datetime': __import__('datetime'),
+                    }
+                    report_name = safe_eval(report.print_report_name, eval_context)
+                    filename = "%s.%s" % (report_name, extension)
+            response.headers.add('Content-Disposition', content_disposition(filename))
+            return response
         res = super(ReportControllerExcel, self).report_download(data, context)
         return res
