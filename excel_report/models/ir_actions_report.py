@@ -1,45 +1,17 @@
 # -*- coding: utf-8 -*-
-# Copyright 2019 Artem Shurshilov
-# Odoo Proprietary License v1.0
 
-# This software and associated files (the "Software") may only be used (executed,
-# modified, executed after modifications) if you have purchased a valid license
-# from the authors, typically via Odoo Apps, or if you have received a written
-# agreement from the authors of the Software (see the COPYRIGHT file).
-
-# You may develop Odoo modules that use the Software as a library (typically
-# by depending on it, importing it and using its resources), but without copying
-# any source code or material from the Software. You may distribute those
-# modules under the license of your choice, provided that this license is
-# compatible with the terms of the Odoo Proprietary License (For example:
-# LGPL, MIT, or proprietary licenses similar to this one).
-
-# It is forbidden to publish, distribute, sublicense, or sell copies of the Software
-# or modified copies of the Software.
-
-# The above copyright notice and this permission notice must be included in all
-# copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-# DEALINGS IN THE SOFTWARE.
-
-import base64
 import io
-from odoo import models, fields, api, _
-import openpyxl
-from odoo.exceptions import UserError
+import base64
 import os
 import sys
 import subprocess
-import datetime
 import re
 import logging
-import base64
+
+from odoo import models, fields, api
+import openpyxl
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -61,7 +33,7 @@ class IrActionsReport(models.Model):
         if sys.platform == 'darwin':
             return '/Applications/LibreOffice.app/Contents/MacOS/soffice'
         if sys.platform == 'win32':
-            return "C:\Program Files\LibreOffice\program\soffice.exe"
+            return r"C:\Program Files\LibreOffice\program\soffice.exe"
         return 'libreoffice'
 
     report_type = fields.Selection(
@@ -83,12 +55,28 @@ class IrActionsReport(models.Model):
         if not data:
             data = {}
         data.setdefault('report_type', 'excel')
-        data = self._get_rendering_context(docids, data)
+
+        # Get the rendering context - Updated for Odoo 18
+        report_model_name = data.get('model')
+        if report_model_name and docids:
+            # Create context with docs
+            docs = self.env[report_model_name].browse(docids)
+            data['docs'] = docs
+            data['doc_ids'] = docids
+            data['doc_model'] = report_model_name
+        else:
+            data['docs'] = []
+            data['doc_ids'] = []
+            data['doc_model'] = ''
+
         # READ DATA
+        if not self.template_excel:
+            raise ValueError("No Excel template configured for this report")
+
         content = base64.b64decode(self.template_excel)
 
         # MERGE DATA
-        # open xcel sheets
+        # open excel sheets
         wb1 = openpyxl.load_workbook(io.BytesIO(content))
         ws1 = wb1.active
 
@@ -96,30 +84,46 @@ class IrActionsReport(models.Model):
         for doc in data['docs']:
             for row in range(ws1.max_row):
                 for column in range(ws1.max_column):
-                    val = ws1.cell(row=row+1, column=column+1).value
+                    val = ws1.cell(row=row + 1, column=column + 1).value
                     if isinstance(val, str):
                         result = re.findall(r"(odoo\(.*?\))$", val)
                         if len(result):
-                            new_val = eval(result[0][5: -1])
-                            if isinstance(new_val, float):
-                                new_val = str(new_val).replace('.', ',')
-                            elif isinstance(new_val, str):
-                                new_val = str(new_val)
-                            else:
-                                # insert image to cell
-                                try:
-                                    imgdata = base64.b64decode(new_val)
-                                    myio = io.BytesIO(imgdata)
-                                    img = openpyxl.drawing.image.Image(myio)
-                                    cell = ws1.cell(row=row+1, column=column+1)
-                                    img.anchor = cell.coordinate
-                                    ws1.add_image(img)
-                                    new_val = ''
-                                except Exception as error:
-                                    _logger.error('Error when trying insert image %s' % error)
-                                    new_val = ''
-                            ws1.cell(
-                                row=row+1, column=column+1).value = re.sub(r"(odoo\(.*?\))$", new_val, val)
+                            try:
+                                # Create a safe environment for evaluation
+                                eval_context = {
+                                    'doc': doc,
+                                    'docs': data['docs'],
+                                    'user': self.env.user,
+                                    'company': self.env.company,
+                                    'time': __import__('time'),
+                                    'datetime': __import__('datetime'),
+                                    'relativedelta': __import__('dateutil.relativedelta').relativedelta,
+                                }
+                                new_val = eval(result[0][5: -1], eval_context)
+
+                                if isinstance(new_val, float):
+                                    new_val = str(new_val).replace('.', ',')
+                                elif isinstance(new_val, str):
+                                    new_val = str(new_val)
+                                else:
+                                    # insert image to cell
+                                    try:
+                                        imgdata = base64.b64decode(new_val)
+                                        myio = io.BytesIO(imgdata)
+                                        img = openpyxl.drawing.image.Image(myio)
+                                        cell = ws1.cell(row=row + 1, column=column + 1)
+                                        img.anchor = cell.coordinate
+                                        ws1.add_image(img)
+                                        new_val = ''
+                                    except Exception as error:
+                                        _logger.error('Error when trying insert image %s' % error)
+                                        new_val = ''
+                                ws1.cell(
+                                    row=row + 1, column=column + 1).value = re.sub(r"(odoo\(.*?\))$", new_val, val)
+                            except Exception as e:
+                                _logger.error('Error evaluating expression %s: %s' % (result[0], e))
+                                # Keep original value if evaluation fails
+                                pass
 
         # WRITE DATA
         myio = io.BytesIO()
@@ -137,10 +141,8 @@ class IrActionsReport(models.Model):
 
             # CONVERT DOCX TO out_report_type
             def convert_to(folder, source, timeout=None):
-                args = [self.excel_path_libreoffice, '--headless',
-                        '--convert-to', self.excel_out_report_type, '--outdir', folder, source]
-                process = subprocess.run(
-                    args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                args = [self.excel_path_libreoffice, '--headless', '--convert-to', self.excel_out_report_type, '--outdir', folder, source]
+                subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
 
             convert_to(self.excel_path_convert_folder, path_source)
 

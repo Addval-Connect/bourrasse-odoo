@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="view_move_line_form" inherit_id="view_move_line_form">
+      <xpath expr="//field[@name='credit']" position="attributes">
+        <attribute name="readonly">0</attribute>
+      </xpath>
+      <xpath expr="//field[@name='debit']" position="attributes">
+        <attribute name="readonly">0</attribute>
+      </xpath>
+      <xpath expr="//field[@name='quantity']" position="attributes">
+        <attribute name="readonly">0</attribute>
+      </xpath>
+    </template>
+</odoo>

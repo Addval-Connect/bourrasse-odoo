@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sale_informations" inherit_id="addval_accounting.invoice_data" priority="21" primary="True">
+        <xpath expr="//t[@id='references']" position="replace" />
+    </template>
+    <template id="sale_transferable_table" inherit_id="addval_accounting.transferable_table" priority="21" primary="True">
+        <div name="transferable-table" position="attributes">
+            <!-- <attribute name="class">col-6</attribute> -->
+            <attribute name="t-if">cedible</attribute>
+        </div>
+    </template>
+    <template id="sale_notes" inherit_id="addval_accounting.notes" priority="21" primary="True">
+        <span t-field="o.notes" position="replace">
+            <span t-field="doc.note" />
+        </span>
+    </template>
+
+    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document" priority="20">
+        <t t-set="address" position="replace" />
+        <xpath expr="//t[@t-set='information_block']/.." position="replace" />
+        <t t-set="doc" position="after">
+            <t t-set="header_data" t-value="doc.get_header_data()" />
+            <t t-set="custom_header" t-value="'addval_accounting.custom_header'" />
+        </t>
+        <xpath expr="//div[@class='page']/h2" position="replace" />
+        <div class="oe_structure" position="replace" />
+        <div id="informations" position="replace">
+            <t t-set="invoice_data" t-value="doc.get_invoice_data()" />
+            <t t-call="addval_sale.sale_informations" />
+        </div>
+        <xpath expr="//table[@class='table table-sm o_main_table']" position="attributes">
+            <attribute name="class">table table-sm o_main_table small</attribute>
+        </xpath>
+        <xpath expr="//td[@class='text-right']/span" position="attributes">
+            <attribute name="class">text-nowrap</attribute>
+        </xpath>
+        <xpath expr="//td[@name='td_taxes']" position="replace">
+            <td name="td_taxes" class="text-nowrap">
+                <!-- <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/> -->
+                <span t-esc="', '.join(map(lambda x: '{:.2f}%'.format(x.amount), line.tax_id))" />
+            </td>
+        </xpath>
+        <xpath expr="//span[@t-field='line.price_unit']" position="attributes">
+            <attribute name="t-field"></attribute>
+            <attribute name="t-esc">line.price_unit</attribute>
+            <attribute name="t-options">{"widget": "monetary", "display_currency": doc.currency_id}</attribute>
+        </xpath>
+        <p t-field="doc.note" position="replace" />
+        <xpath expr="//div[@id='total']" position="attributes">
+            <attribute name="class">row mr-1</attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']/div" position="attributes">
+            <attribute name="class">col-6</attribute>
+            <attribute name="t-attf-class"></attribute>
+        </xpath>
+        <xpath expr="//div[@id='total']/div" position="before">
+            <t t-call="addval_sale.sale_notes" />
+        </xpath>
+        <xpath expr="//div[@id='total']" position="after">
+            <div class="row">
+                <div name="stamp" class="col-4 text-center" />
+                <div name="transferable-legend" class="col-2" />
+                <t t-call="addval_sale.sale_transferable_table" />
+            </div>
+        </xpath>
+
+        <!-- <div class="oe_structure" position="before">
+            <t t-call="addval_accounting.important_notes" />
+        </div> -->
+    </template>
+
+    <template id="sale_order_transferable" inherit_id="addval_sale.report_saleorder_document">
+        <div name="transferable-legend" position="inside">
+            <t t-if="cedible">
+                <p class="text-right" style="margin-bottom: 0px;">
+                    <br />
+                    <br />
+                    <font style="color: rgb(255, 0, 0);">CEDIBLE</font>
+                </p>
+            </t>
+        </div>
+    </template>
+
+    <template id="sale_order_cedible">
+        <t t-call="sale.report_saleorder">
+            <t t-set="cedible" t-value="1" />
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="lang" t-value="doc.partner_id.lang" />
+                <t t-set="print_with_payments" t-value="True" />
+                <t t-call="addval_sale.sale_order_transferable" />
+            </t>
+        </t>
+    </template>
+
+    <record id="action_sale_order_cedible" model="ir.actions.report">
+        <field name="name">Presupuesto / Pedido Cedible</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">addval_sale.sale_order_cedible</field>
+        <field name="report_file">addval_sale.sale_order_cedible</field>
+        <field name="print_report_name">'Cedible - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="sale.model_sale_order" />
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

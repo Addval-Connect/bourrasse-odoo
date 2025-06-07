@@ -1,0 +1,2 @@
+id,sequence,code,name,report_name,internal_type,doc_code_prefix,country_id/id,active
+dc_ipp,10,820,Inscripcion de Acuerdo Plazo de Pago,IPP,,IPP,base.cl,False
