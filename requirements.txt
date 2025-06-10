@@ -1,3 +1,4 @@
 pdf417gen==0.7.1
 openpyxl==3.1.5
 types-openpyxl==3.1.5.20250602
+openupgradelib
