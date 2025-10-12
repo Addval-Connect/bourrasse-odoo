@@ -1,3 +1,7 @@
 [submodule "bourrasse_addons"]
 	path = bourrasse_addons
 	url = git@github.com:vaopaso/bourrasse_addons.git
+[submodule "iosbox_addons"]
+	path = iosbox_addons
+	url = git@github.com:vaopaso/iosbox_addons.git
+	branch = 18.0
